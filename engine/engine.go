@@ -58,22 +58,43 @@ func (e *Engine) Run() error {
         }
     }()
 
-    e.scene = &Scene{}
+    e.scene = &Scene{
+        camera: NewCamera(),
+    }
     terrain, err := NewTerrain()
-    e.scene.root = &Composite{
-        Children: []Drawable{
-            terrain,
-        },
+    terrain.Put(i32vec3{}, 1)
+    terrain.Put(i32vec3{1, 1, 1}, 1)
+    e.scene.terrain = terrain
+
+    renderer, err := NewRenderer()
+    if err != nil {
+        return fmt.Errorf("failed to create renderer: %w", err)
     }
 
-	for !window.ShouldClose() {
-        gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-        e.scene.Draw()
+    main_loop: for !window.ShouldClose() {
+        renderer.Render(
+            e.scene,
+            e.config,
+        )
+
+        glErr := gl.GetError()
+        if glErr != gl.NO_ERROR {
+            log.Printf("GL Error: %d (0x%x)", glErr, glErr)
+            break main_loop
+        }
+
         glfw.PollEvents()
         window.SwapBuffers()
 	}
 
     return nil
+}
+
+func checkGLError() {
+    glErr := gl.GetError()
+    if glErr != gl.NO_ERROR {
+        panic(fmt.Errorf("GL error: %d (0x%x)", glErr, glErr))
+    }
 }
 
 func (e *Engine) initGlfw() (*glfw.Window, error) {

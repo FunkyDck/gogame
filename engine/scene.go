@@ -1,26 +1,28 @@
 package engine
 
-type Drawable interface {
-    Draw()
+import (
+	"github.com/go-gl/mathgl/mgl32"
+)
+
+type Scene struct {
+    camera *Camera
+    terrain *Terrain
 }
 
-var _ Drawable = &Composite{}
-var _ Drawable = &Scene{}
-
-type Composite struct {
-    Children []Drawable
+type Camera struct {
+    pos mgl32.Vec3
+    target mgl32.Vec3
+    fovDegrees float32
+    near float32
+    far float32
 }
 
-func (c *Composite) Draw() {
-    for _, child := range(c.Children) {
-        child.Draw()
+func NewCamera() *Camera {
+    return &Camera{
+        pos: mgl32.Vec3{3, 3, 3},
+        fovDegrees: 45,
+        near: 0.1,
+        far: 100,
     }
 }
 
-type Scene struct {
-    root *Composite
-}
-
-func (s *Scene) Draw() {
-    s.root.Draw()
-}

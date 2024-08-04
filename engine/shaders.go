@@ -35,6 +35,7 @@ func compileShader(source string, shaderType uint32) (uint32, error) {
 func createProgram(
     vert string,
     frag string,
+    geom string,
 ) (uint32, error) {
     vertexSource, err := data.ReadFile(vert)
     if err != nil {
@@ -59,6 +60,22 @@ func createProgram(
 	prog := gl.CreateProgram()
 	gl.AttachShader(prog, vertexShader)
 	gl.AttachShader(prog, fragmentShader)
+
+    var geomShader uint32
+    if len(geom) > 0 {
+        geomSource, err := data.ReadFile(geom)
+        if err != nil {
+            return 0, fmt.Errorf("failed to create shader: %w", err)
+        }
+
+        geomShader, err = compileShader(string(geomSource), gl.GEOMETRY_SHADER)
+        if err != nil {
+            return 0, err
+        }
+
+        gl.AttachShader(prog, geomShader)
+    }
+
 	gl.LinkProgram(prog)
 	return prog, nil
 }

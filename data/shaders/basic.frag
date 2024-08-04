@@ -1,7 +1,12 @@
 #version 410
 
-out vec4 frag_colour;
+uniform double engineTime;
+uniform sampler2D tex;
+
+in vec2 fragTexCoord;
+
+out vec4 outputColor;
 
 void main() {
-	frag_colour = vec4(1, 1, 1, 1.0);
+    outputColor = vec4(0.1, 1.0, 0.0, 1.0);
 }
